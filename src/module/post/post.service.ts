@@ -2,10 +2,13 @@ import { Response, Request } from "express";
 import { CreatePostDTO } from "./post.dto";
 import { PostFactoryService } from "./factory";
 import { PostRepository } from "../../DB/model/post/post.repository";
+import { NotFoundException } from "../../utils";
 
 class postService {
   private readonly postFactoryService = new PostFactoryService();
   private readonly postRepository = new PostRepository();
+
+  // create post
  public create = async (req: Request, res: Response) => {
 
     //get data from req
@@ -26,6 +29,28 @@ class postService {
         data: { createdPost },
       });
   };
+
+  // make reaction 
+ public addReaction =async(req:Request , res:Response) =>{
+
+  //get data from request
+  const {id} = req.params;
+  const {reaction} = req.body;
+  const userId = req.user._id;
+
+  // check post existence
+  const postExist=await this.postRepository.exist({_id :id})
+  if(!postExist) throw new NotFoundException("post not found")
+
+  //add reaction
+  await this.postRepository.update(
+    { _id: id },
+    { $push: { reactions: { reaction, userId } } }
+  );
+ // send response
+ return res.sendStatus(204)
+
+ }
 }
 
 export default new postService();

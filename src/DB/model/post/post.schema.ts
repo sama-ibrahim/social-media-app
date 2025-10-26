@@ -11,9 +11,9 @@ const reactionSchema = new Schema<IReaction> ({
 
  userId:{
     
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
+     type: Schema.Types.ObjectId,
+     ref: "User",
+      required: true,
     
  }
 }, {timestamps :true})
