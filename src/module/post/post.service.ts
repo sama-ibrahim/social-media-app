@@ -41,12 +41,28 @@ class postService {
   // check post existence
   const postExist=await this.postRepository.exist({_id :id})
   if(!postExist) throw new NotFoundException("post not found")
+  
+    //check userReaction
+    let userReactedIndex =postExist.reactions.findIndex((reaction)=>{
+   return reaction.userId.toString() == userId.toString();
+    })
 
   //add reaction
+    if(userReactedIndex ==-1)
   await this.postRepository.update(
     { _id: id },
     { $push: { reactions: { reaction, userId } } }
   );
+
+  //user already reacted
+  else
+  {
+    await this.postRepository.update ({_id :id ,"reactions.userId":userId} ,
+      {
+        "reactions.$.reaction" :reaction,
+      }
+    )
+  }
  // send response
  return res.sendStatus(204)
 
